@@ -1,0 +1,38 @@
+.*.swp
+*.pyc
+*.pyo
+.DS_Store
+*.sqlite3
+.vagrant
+.sass-cache/*
+public/*
+!public/scripts
+node_modules/
+
+# Textmate
+*.tmproj
+tmtags
+
+# build products
+build/
+*.[oa]
+
+# Other source repository archive directories (protects when importing)
+.hg
+.svn
+CVS
+
+# automatic backup files
+*~.nib
+*.swp
+*~
+*(Autosaved).rtfd/
+Backup[ ]of[ ]*.pages/
+Backup[ ]of[ ]*.key/
+Backup[ ]of[ ]*.numbers/j
+
+#Rails
+
+.bundle
+log/*.log
+tmp/**/*
