@@ -7,7 +7,7 @@ def index():
 
 @route('<filename:path>')
 def send_static(filename):
-    return static_file(filename, root='./')
+    return static_file(filename, root='./dashing/')
 
 debug(True)
 run(host='0.0.0.0', port=8000, reloader=True)

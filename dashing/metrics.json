@@ -1,0 +1,7 @@
+{
+  "graphite": "10.0.1.6:8080",
+  "metrics": [
+    {"name":"Test 1", "path":"metrics.daily.test1", "target":">80", "warning":60},
+    {"name":"Test 2", "path":"metrics.daily.test2", "target":"<=80", "warning":60}
+  ]
+}

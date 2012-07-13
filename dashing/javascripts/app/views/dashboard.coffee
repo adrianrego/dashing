@@ -20,17 +20,7 @@ define [
         $('div.container-fluid').append('<div class="row-fluid"></div>')
         return @render()
 
-      data = @model.attributes
-      data.value = _.last(data.values).value
-
-      if @model.get('value') >= @model.get('target')
-        data.status = 'btn-success'
-      else if @model.get('value') >= @model.get('warning')
-        data.status = 'btn-warning'
-      else
-        data.status = 'btn-danger'
-
-      @$el.html(@template(data))
+      @$el.html(@template(@model.attributes))
       $(row).append(@el)
 
     details: ->
