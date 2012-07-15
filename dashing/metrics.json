@@ -1,7 +1,17 @@
 {
   "graphite": "10.0.1.6:8080",
   "metrics": [
-    {"name":"Test 1", "path":"metrics.daily.test1", "target":">80", "warning":60},
-    {"name":"Test 2", "path":"metrics.daily.test2", "target":"<=80", "warning":60}
+    {"name":"Test 1", "path":"metrics.daily.test1", "target":">80", "warning":">=25", "size":"large",
+     "total":"metrics.daily.test.total"},
+    {"name":"Test 2", "path":"metrics.daily.test2", "target":"<=80", "warning":"60",
+      "total":"metrics.daily.test.total"},
+    {"name":"Test 3", "path":"metrics.daily.test3", "target":"80", "warning":"60", "size":"medium"},
+    {"name":"Test 4", "path":"metrics.daily.test4", "target":">60", "size":"large",
+     "total":"metrics.daily.test.total"},
+    {"name":"Test 5", "path":"metrics.daily.test5", "target":"<20", "warning":"<=35", "size":"medium"},
+    {"name":"Test 6", "path":"metrics.daily.test6", "target":">10", "warning":">5", "size":"medium"},
+    {"name":"Test 7", "path":"metrics.daily.test7", "size":"small"},
+    {"name":"Test 8", "path":"metrics.daily.test8", "size":"small"},
+    {"name":"Test Total", "path":"metrics.daily.test.total", "size":"small"}
   ]
 }

@@ -6,30 +6,47 @@ define [
 ], ($, _, Backbone, moment) ->
   class Metric extends Backbone.Model
     defaults:
-      "path":  "localhost"
+      "size":  "small"
 
     initialize: (attributes) ->
-      @on 'change:values', @updateLastValue
-      @on 'change:value', @updateStatusClass
+      @on 'change:values', @updateStats
 
-    updateLastValue: ->
-      validValues = _.filter(@get('values'), (v) ->
-        return v.value != null)
+    updateStats: ->
+      @set 'value', _.last(@get('values')).value
+      @updateStatus()
 
-      @set 'value', _.last(validValues).value
+      sum = _.reduce(@get('values'), ((memo, val) ->
+        memo + val.value), 0)
 
-    updateStatusClass: ->
-      target = @getCompareAndVal(@get('target'))
-      warning = @getCompareAndVal(@get('warning'))
+      @set('mean',  Math.round(sum / @get('values').length))
 
-      if @compareVal(target)
-        @set('status', 'btn-success')
-      else
-        @set('status', 'btn-danger')
+      sq_diff = (val) ->
+        diff = val.value - @get('mean')
+        return diff * diff
 
-      if @compareVal(warning)
-        @set('status', 'btn-warning')
-      
+      diffs = _.map(@get('values'), sq_diff, @)
+      dsum = _.reduce(diffs, ((memo, num) ->
+        memo + num), 0)
+
+      @set('variance',  dsum / diffs.length)
+      @set('stddev', Math.round(Math.sqrt(@get('variance'))))
+
+    updateStatus: ->
+      if @get('target')
+        target = @getCompareAndVal(@get('target'))
+        @set 'targetVal', target[1]
+
+        if @compareVal(target)
+          @set('status', 1)
+        else
+          @set('status', -1)
+
+      if @get('warning')
+        warning = @getCompareAndVal(@get('warning'))
+
+        if @get('status') < 0 and @compareVal(warning)
+          @set('status', 0)
+
     compareVal: (comparable)->
       val = @get('value')
 
@@ -75,13 +92,21 @@ define [
       $.getJSON url, options.success if options.success
 
     gValue: ->
-      @graphite 
-        from:'-30d', 
-        until: '-1d', 
+      @graphite
+        from:'-30d',
+        until:'-1d',
         success: (data) =>
           values = []
           $(data[0].datapoints).each (i, d) ->
-            date = moment.unix(d[1]).toDate()
-            values.push({date: date, seconds: d[1], value: d[0]})
-        
+            date = new Date(0)
+            offset = date.getTimezoneOffset() * 60
+            date.setTime((d[1] + offset )*1000)
+
+            if d[0] == null
+              val = 0
+            else
+              val = d[0]
+
+            values.push({date: date, seconds: d[1], value: val})
+
           @set 'values', values

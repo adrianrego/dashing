@@ -41,6 +41,24 @@ body{
   }
 }
 
+.modal-body ul{
+  list-style: none;
+}
+
+.modal-body ul li{
+  display: inline-block;
+  margin: 0 15px;
+  text-align: center;
+}
+
+.modal-body{
+  height: 90%;
+  max-height: 98%;
+}
+
+div.chart{
+  height: 200px;
+}
 
 /* Landscape phones and down */
 @media (max-width: 480px) {

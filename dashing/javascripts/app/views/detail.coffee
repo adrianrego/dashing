@@ -11,6 +11,73 @@ define [
     className: 'modal hide fade'
     template: tmpl
 
+    valueChart: ->
+      yLabel = @model.get('name')
+      m = @model
+
+      d3Values = _.map @model.get('values'), (v)->
+          data = {x: v.date, y: v.value}
+          return data
+
+      datum = [{key: yLabel, values: d3Values}]
+
+      if @model.get('target')
+        targets = []
+
+        _.each @model.get('values'), (v)->
+          targets.push({y:m.get('targetVal'), x:v.date})
+
+        datum.push({key:'Target', values: targets})
+
+      nv.addGraph ->
+        chart = nv.models.lineChart()
+        chart.xAxis.tickFormat((d) ->
+            d3.time.format('%x')(new Date(d))
+        )
+
+        d3.select('#val-chart svg').datum(datum)
+          .transition().duration(500).call(chart)
+
+        return
+
+    rateChart: ->
+      yLabel = 'Rate'
+      m = @model
+
+      d3Values = []
+      sum = 0
+
+      _.times m.get('values').length, (i) ->
+        val = m.get('values')[i].value
+        total = m.get('rel_total').get('values')[i].value
+        x = m.get('values')[i].date
+
+        rate = Math.round(val/total * 100)
+        sum += rate
+
+        d3Values.push({x: x, y: rate})
+
+
+      datum = [{key: yLabel, values: d3Values}]
+
+      mean = []
+
+      _.each m.get('values'), (v)->
+          mean.push({y:Math.round(sum/d3Values.length), x:v.date})
+
+      datum.push({key:'Avg. Rate', values: mean})
+
+      nv.addGraph ->
+        chart = nv.models.lineChart()
+        chart.xAxis.tickFormat((d) ->
+            d3.time.format('%x')(new Date(d))
+        )
+
+        d3.select('#rate-chart svg').datum(datum)
+          .transition().duration(500).call(chart)
+
+        return
+
     render: ->
       @$el.html(@template(@model.attributes))
       $('body').append(@el)
@@ -25,28 +92,8 @@ define [
         return @
 
       @$el.on 'shown', =>
-        d3Values = _.map @model.get('values'), (v)->
-          data = {x: v.seconds * 1000, y: v.value}
-          return data
-
-        nv.addGraph ->
-          chart = nv.models.lineChart()
-          chart.xAxis.axisLabel('Date').tickFormat((d) ->
-            d3.time.format('%x')(new Date(d))
-          )
-
-          chart.yAxis.axisLabel('Value')
-
-
-          d3.select('#chart svg').datum([
-            {
-              key: 'Values'
-              values: d3Values
-            }
-          ]
-          ).transition().duration(500).call(chart)
-
-          return
+        @valueChart()
+        @rateChart()
 
       @$el.modal()
 

@@ -135,7 +135,6 @@ d3.time.monthEnds = d3_time_range(d3.time.monthEnd, function(date) {
   var nvtooltip = window.nv.tooltip = {};
 
   nvtooltip.show = function(pos, content, gravity, dist) {
-
     var container = document.createElement("div");
         container.className = "nvtooltip";
 
@@ -158,7 +157,6 @@ d3.time.monthEnds = d3_time_range(d3.time.monthEnd, function(date) {
         scrollTop = body.scrollTop,
         scrollLeft = body.scrollLeft,
         left, top;
-
 
     switch (gravity) {
       case 'e':
@@ -183,8 +181,8 @@ d3.time.monthEnds = d3_time_range(d3.time.monthEnd, function(date) {
         if (top + height > scrollTop + windowHeight) top = pos[1] - height - dist;
         break;
       case 's':
-        left = pos[0] - (width / 2);
-        top = pos[1] - height - dist;
+        left = pos[0] + (width);
+        top = pos[1] - height;
         if (left < scrollLeft) left = scrollLeft + 5;
         if (left + width > windowWidth) left = windowWidth - width - 5;
         if (scrollTop > top) top = pos[1] + 20;

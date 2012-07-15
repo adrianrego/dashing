@@ -7,21 +7,31 @@ define [
 ], ($, _, Backbone, tmpl, MetricDetailView) ->
   class MetricDashboardView extends Backbone.View
     tagName: 'div'
-    className: 'dash span3'
+    className: 'dash'
     template: tmpl
 
     events:
       "click":    "details"
 
+    initialize: (attributes)->
+      @row = attributes.row
+      @span = "span" + attributes.span
+
     render: ->
-      row = $('.row-fluid').last()
+      data = @model.attributes
 
-      if row.length == 0 or $(row).children().length >= 4
-        $('div.container-fluid').append('<div class="row-fluid"></div>')
-        return @render()
+      if data.status > 0
+        data.status_class = 'btn-success'
+      else if data.status == 0
+        data.status_class = 'btn-warning'
+      else if data.status < 0
+        data.status_class = 'btn-danger'
+      else
+        data.status_class = 'btn-inverse'
 
+      @$el.addClass(@span)
       @$el.html(@template(@model.attributes))
-      $(row).append(@el)
+      @row.$el.append(@el)
 
     details: ->
       detail = new MetricDetailView(model: @model)

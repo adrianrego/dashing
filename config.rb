@@ -8,6 +8,7 @@ css_dir = "dashing/stylesheets"
 sass_dir = "dashing/sass"
 images_dir = "dashing/images"
 javascripts_dir = "dashing/javascripts"
+http_images_path = "/images"
 
 # You can select your preferred output style here (can be overridden via the command line):
 # output_style = :expanded or :nested or :compact or :compressed
