@@ -8,9 +8,9 @@ require.config({
     underscore: "../libs/underscore",
     modal: "../libs/bootstrap/bootstrap-modal",
     transition: "../libs/bootstrap/bootstrap-transition",
-    d3: "../libs/d3.v2",
-    nvd3: "../libs/nv.d3",
     moment: "../libs/moment",
+    flotr2: "../libs/flotr2-amd",
+    bean: "../libs/bean",
     jquery: "../libs/require-jquery"
   },
   hbs:{
@@ -19,10 +19,6 @@ require.config({
   },
   urlArgs: "bust=" + (new Date()).getTime(),
   shim: {
-    nvd3: {
-      deps: ["d3"],
-      exports: "nv"
-    },
     modal: ["jquery", "transition"],
     underscore: {
       exports: "_"

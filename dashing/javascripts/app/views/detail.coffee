@@ -3,82 +3,75 @@ define [
   'underscore'
   'backbone'
   'hbs!templates/detail'
-  'nvd3'
+  'flotr2'
   'modal'
-], ($, _, Backbone, tmpl, nv) ->
+], ($, _, Backbone, tmpl, Flotr) ->
   class MetricDetailView extends Backbone.View
     tagName: 'div'
-    className: 'modal hide fade'
+    className: 'modal hide'
     template: tmpl
 
+    initialize: ->
+      @id = @model.cid
+
     valueChart: ->
-      yLabel = @model.get('name')
-      m = @model
+      values = _.map @.model.get('values'), (v, i)->
+        return [v.date.getTime(), v.value]
 
-      d3Values = _.map @model.get('values'), (v)->
-          data = {x: v.date, y: v.value}
-          return data
+      container = $('#val-chart')[0]
+      graphOpts =
+        title: "Volume"
+        bars:
+          show: true
+          barWidth: 1000 * 43000
+        xaxis:
+          mode: 'time'
+          labelsAngle: 45
+          timeMode: 'local'
+          noTicks: 10
 
-      datum = [{key: yLabel, values: d3Values}]
-
-      if @model.get('target')
-        targets = []
-
-        _.each @model.get('values'), (v)->
-          targets.push({y:m.get('targetVal'), x:v.date})
-
-        datum.push({key:'Target', values: targets})
-
-      nv.addGraph ->
-        chart = nv.models.lineChart()
-        chart.xAxis.tickFormat((d) ->
-            d3.time.format('%x')(new Date(d))
-        )
-
-        d3.select('#val-chart svg').datum(datum)
-          .transition().duration(500).call(chart)
-
-        return
+      graph = Flotr.draw(container, [values], graphOpts)
 
     rateChart: ->
       yLabel = 'Rate'
       m = @model
 
-      d3Values = []
+      values = []
       sum = 0
 
       _.times m.get('values').length, (i) ->
         val = m.get('values')[i].value
         total = m.get('rel_total').get('values')[i].value
-        x = m.get('values')[i].date
+        x = m.get('values')[i].date.getTime()
 
         rate = Math.round(val/total * 100)
         sum += rate
 
-        d3Values.push({x: x, y: rate})
-
-
-      datum = [{key: yLabel, values: d3Values}]
+        values.push([x, rate])
 
       mean = []
 
       _.each m.get('values'), (v)->
-          mean.push({y:Math.round(sum/d3Values.length), x:v.date})
+          mean.push([v.date.getTime(), Math.round(sum/values.length)])
 
-      datum.push({key:'Avg. Rate', values: mean})
+      container = $('#rate-chart')[0]
+      graphOpts =
+        title: "% of Total"
+        lines:
+          fill: true
+        xaxis:
+          mode: 'time'
+          labelsAngle: 45
+          timeMode: 'local'
+          noTicks: 10
+        yaxis:
+          min: 0
+          max: 100
 
-      nv.addGraph ->
-        chart = nv.models.lineChart()
-        chart.xAxis.tickFormat((d) ->
-            d3.time.format('%x')(new Date(d))
-        )
-
-        d3.select('#rate-chart svg').datum(datum)
-          .transition().duration(500).call(chart)
-
-        return
+      graph = Flotr.draw(container, [values], graphOpts)
 
     render: ->
+      @$el.attr('id', @id)
       @$el.html(@template(@model.attributes))
       $('body').append(@el)
 
@@ -96,4 +89,3 @@ define [
         @rateChart()
 
       @$el.modal()
-

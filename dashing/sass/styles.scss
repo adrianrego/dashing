@@ -52,11 +52,12 @@ body{
 }
 
 .modal-body{
-  height: 90%;
-  max-height: 98%;
+  height: 88%;
+  max-height: 90%;
 }
 
 div.chart{
+  width: 100%;
   height: 200px;
 }
 
@@ -96,10 +97,6 @@ div.chart{
     margin-left: -45%;
   }
 
-  #chart svg{
-    height: 250px;
-  }
-
   .dash{
     height: 140px;
 
@@ -112,6 +109,10 @@ div.chart{
         margin-top: 0px;
       }
     }
+  }
+
+  div.chart{
+    height: 100px;
   }
 }
 
