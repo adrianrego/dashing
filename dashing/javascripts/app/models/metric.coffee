@@ -130,6 +130,10 @@ define [
             else
               val = d[0]
 
+            tmpVal = val + ""
+            if tmpVal.indexOf('.') > 0
+              val = parseFloat(val.toFixed(2))
+
             values.push({date: date, seconds: d[1], value: val})
 
           @set 'values', values

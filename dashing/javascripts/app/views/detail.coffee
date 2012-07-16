@@ -101,19 +101,20 @@ define [
         val = data[i].value
         target = m.getCompareAndVal(m.get('target'))
 
-        if m.get('display') == 'rate'
-          variance = m.get('targetVal') - val
+        if m.get('display') != 'rate'
+          variance = Math.abs(m.get('targetVal') - val)
+          variance = Math.round((variance / m.get('targetVal')) * 100)
         else
           variance = Math.round((val / m.get('targetVal')) * 100)
 
         if m.compareVal(target, val)
-          variance = Math.abs(variance)
-
           if target[0][0] == '<'
             variance = 100 - variance
         else
-          variance = Math.abs(variance)
-          variance = Math.abs((100 - variance)) * - 1
+          if target[0][0] == '>'
+            variance = 100 - variance
+
+          variance = variance * -1
 
         x = m.get('values')[i].date.getTime()
         values.push([x, variance])
