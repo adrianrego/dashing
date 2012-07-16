@@ -14,6 +14,7 @@ define [
       findRelations = (model) ->
         if model.get('total')
           model.set('rel_total', @findByPath(model.get('total')))
+          model.relatedMetrics()
 
       _.each(@models, findRelations, @)
 

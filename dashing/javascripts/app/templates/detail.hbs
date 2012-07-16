@@ -5,7 +5,7 @@
 <div class="modal-body">
   <ul>
     <li>
-      <h1>{{ value }}</h1>
+      <h1>{{ formatted_value }}</h1>
       <p>current value</p>
     </li>
     <li>
@@ -26,7 +26,7 @@
   <div id="val-chart" class="hidden-phone chart">
   </div>
 
-  {{#if total}}
+  {{#if targetVal}}
   <hr />
   <div id="rate-chart" class="hidden-phone chart">
   </div>

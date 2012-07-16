@@ -7,36 +7,61 @@ define [
   class Metric extends Backbone.Model
     defaults:
       "size":  "small"
+      "display": "raw"
 
     initialize: (attributes) ->
       @on 'change:values', @updateStats
 
     updateStats: ->
-      @set 'value', _.last(@get('values')).value
+      if @get('display') == 'rate' and @get('rates')
+        data = @get('rates')
+      else
+        data = @get('values')
+
+      @set 'value', _.last(data).value
       @updateStatus()
 
-      sum = _.reduce(@get('values'), ((memo, val) ->
+      sum = _.reduce(data, ((memo, val) ->
         memo + val.value), 0)
 
-      @set('mean',  Math.round(sum / @get('values').length))
+      @set('mean',  Math.round(sum / data.length))
 
       sq_diff = (val) ->
         diff = val.value - @get('mean')
         return diff * diff
 
-      diffs = _.map(@get('values'), sq_diff, @)
+      diffs = _.map(data, sq_diff, @)
       dsum = _.reduce(diffs, ((memo, num) ->
         memo + num), 0)
 
       @set('variance',  dsum / diffs.length)
       @set('stddev', Math.round(Math.sqrt(@get('variance'))))
 
+    relatedMetrics: ->
+      if @get('display') == 'rate'
+        volume = @get('values')
+        totals = @get('rel_total').get('values')
+
+        rates = []
+
+        _.times(volume.length, (i) ->
+          if volume[i].seconds == totals[i].seconds
+            rate = Math.round((volume[i].value / totals[i].value) * 100)
+          else
+            rate = 0
+          rates.push({value: rate, date: volume[i].date, seconds: volume[i].seconds})
+        )
+
+        @set('rates', rates)
+
+      @updateStats()
+
     updateStatus: ->
       if @get('target')
         target = @getCompareAndVal(@get('target'))
         @set 'targetVal', target[1]
 
-        if @compareVal(target)
+        if @compareVal(target, @get('value'))
           @set('status', 1)
         else
           @set('status', -1)
@@ -44,12 +69,10 @@ define [
       if @get('warning')
         warning = @getCompareAndVal(@get('warning'))
 
-        if @get('status') < 0 and @compareVal(warning)
+        if @get('status') < 0 and @compareVal(warning, @get('value'))
           @set('status', 0)
 
-    compareVal: (comparable)->
-      val = @get('value')
-
+    compareVal: (comparable, val)->
       if comparable[0] == '<'
         res = val < comparable[1]
       else if comparable[0] == '<='

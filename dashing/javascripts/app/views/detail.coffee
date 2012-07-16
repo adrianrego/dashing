@@ -15,12 +15,21 @@ define [
       @id = @model.cid
 
     valueChart: ->
-      values = _.map @.model.get('values'), (v, i)->
-        return [v.date.getTime(), v.value]
+      m = @model
+
+      if m.get('display') == 'rate'
+        data = m.get('rates')
+        display = "Rate (%)"
+      else
+        data = m.get('values')
+        display = "Volume"
+
+      values = _.map(data, (v, i)->
+        return [v.date.getTime(), v.value])
 
       container = $('#val-chart')[0]
       graphOpts =
-        title: "Volume"
+        title: display
         bars:
           show: true
           barWidth: 1000 * 43000
@@ -29,6 +38,10 @@ define [
           labelsAngle: 45
           timeMode: 'local'
           noTicks: 10
+        mouse:
+          track: true
+        markers:
+          show: true
 
       graph = Flotr.draw(container, [values], graphOpts)
 
@@ -70,6 +83,59 @@ define [
 
       graph = Flotr.draw(container, [values], graphOpts)
 
+    varianceChart: ->
+      yLabel = 'Variance from Target'
+      m = @model
+      max = 100
+
+      values = []
+      sum = 0
+
+      if m.get('display') == 'rate'
+        data = m.get('rates')
+      else
+        data = m.get('values')
+
+      _.times data.length, (i) ->
+        val = data[i].value
+        target = m.getCompareAndVal(m.get('target'))
+
+        variance = Math.round((val / m.get('targetVal')) * 100)
+
+        if variance > 100
+          variance = variance - 100
+
+        if m.compareVal(target, val)
+          variance = Math.abs(variance)
+
+          if target[0][0] == '<'
+            variance = 100 - variance
+        else
+          variance = Math.abs(variance)
+          variance = (100 - variance) * - 1
+
+        x = m.get('values')[i].date.getTime()
+        values.push([x, variance])
+
+        if variance > max
+          max = variance
+
+      container = $('#rate-chart')[0]
+      graphOpts =
+        title: "% Variance from Target"
+        xaxis:
+          mode: 'time'
+          labelsAngle: 45
+          timeMode: 'local'
+          noTicks: 10
+        yaxis:
+          min: -100
+          max: max
+        mouse:
+          track: true
+
+      graph = Flotr.draw(container, [values], graphOpts)
+
     render: ->
       @$el.attr('id', @id)
       @$el.html(@template(@model.attributes))
@@ -86,6 +152,6 @@ define [
 
       @$el.on 'shown', =>
         @valueChart()
-        @rateChart()
+        @varianceChart()
 
       @$el.modal()

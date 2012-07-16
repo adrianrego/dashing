@@ -20,6 +20,11 @@ define [
     render: ->
       data = @model.attributes
 
+      if data.format == '%'
+        data.formatted_value = data.value + '%'
+      else
+        data.formatted_value = data.value
+
       if data.status > 0
         data.status_class = 'btn-success'
       else if data.status == 0
