@@ -45,7 +45,7 @@ define [
         rates = []
 
         _.times(volume.length, (i) ->
-          if volume[i].seconds == totals[i].seconds
+          if volume[i].seconds == totals[i].seconds and totals[i].value > 0
             rate = Math.round((volume[i].value / totals[i].value) * 100)
           else
             rate = 0

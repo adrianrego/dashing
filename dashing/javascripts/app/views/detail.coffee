@@ -87,6 +87,7 @@ define [
       yLabel = 'Variance from Target'
       m = @model
       max = 100
+      min = -100
 
       values = []
       sum = 0
@@ -100,10 +101,10 @@ define [
         val = data[i].value
         target = m.getCompareAndVal(m.get('target'))
 
-        variance = Math.round((val / m.get('targetVal')) * 100)
-
-        if variance > 100
-          variance = variance - 100
+        if m.get('display') == 'rate'
+          variance = m.get('targetVal') - val
+        else
+          variance = Math.round((val / m.get('targetVal')) * 100)
 
         if m.compareVal(target, val)
           variance = Math.abs(variance)
@@ -112,13 +113,24 @@ define [
             variance = 100 - variance
         else
           variance = Math.abs(variance)
-          variance = (100 - variance) * - 1
+          variance = Math.abs((100 - variance)) * - 1
 
         x = m.get('values')[i].date.getTime()
         values.push([x, variance])
 
         if variance > max
           max = variance
+
+        if variance < min
+          min = variance
+
+
+      aMin = Math.abs(min)
+
+      if max > aMin
+        min = max * -1
+      else if aMin > max
+        max = aMin
 
       container = $('#rate-chart')[0]
       graphOpts =
@@ -129,7 +141,7 @@ define [
           timeMode: 'local'
           noTicks: 10
         yaxis:
-          min: -100
+          min: min
           max: max
         mouse:
           track: true
