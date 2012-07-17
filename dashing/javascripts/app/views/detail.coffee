@@ -14,22 +14,50 @@ define [
     initialize: ->
       @id = @model.cid
 
-    valueChart: ->
+    splitData: (data)->
+      pass = []
+      fail = []
+      warn = []
+
       m = @model
 
-      if m.get('display') == 'rate'
-        data = m.get('rates')
+      _.times data.length, (i) ->
+        val = data[i].value
+        x = m.get('values')[i].date.getTime()
+
+        if m.get('target')
+          target = m.getCompareAndVal(m.get('target'))
+        else
+          pass.push([x, val])
+          return
+
+        if m.get('warning')
+          warning = m.getCompareAndVal(m.get('warning'))
+
+        if not m.compareVal(target, val)
+          if warning and m.compareVal(warning, val)
+            warn.push([x, val])
+          else
+            fail.push([x, val])
+        else
+          pass.push([x, val])
+
+      return [pass, fail, warn]
+
+    valueChart: ->
+      if @model.get('display') == 'rate'
+        data = @model.get('rates')
         display = "Rate (%)"
       else
-        data = m.get('values')
+        data = @model.get('values')
         display = "Volume"
 
-      values = _.map(data, (v, i)->
-        return [v.date.getTime(), v.value])
+      dataSeries = @splitData(data)
 
       container = $('#val-chart')[0]
       graphOpts =
         title: display
+        colors: ['green', 'red', 'orange']
         bars:
           show: true
           barWidth: 1000 * 43000
@@ -43,45 +71,7 @@ define [
         markers:
           show: true
 
-      graph = Flotr.draw(container, [values], graphOpts)
-
-    rateChart: ->
-      yLabel = 'Rate'
-      m = @model
-
-      values = []
-      sum = 0
-
-      _.times m.get('values').length, (i) ->
-        val = m.get('values')[i].value
-        total = m.get('rel_total').get('values')[i].value
-        x = m.get('values')[i].date.getTime()
-
-        rate = Math.round(val/total * 100)
-        sum += rate
-
-        values.push([x, rate])
-
-      mean = []
-
-      _.each m.get('values'), (v)->
-          mean.push([v.date.getTime(), Math.round(sum/values.length)])
-
-      container = $('#rate-chart')[0]
-      graphOpts =
-        title: "% of Total"
-        lines:
-          fill: true
-        xaxis:
-          mode: 'time'
-          labelsAngle: 45
-          timeMode: 'local'
-          noTicks: 10
-        yaxis:
-          min: 0
-          max: 100
-
-      graph = Flotr.draw(container, [values], graphOpts)
+      graph = Flotr.draw(container, dataSeries, graphOpts)
 
     varianceChart: ->
       yLabel = 'Variance from Target'
@@ -89,42 +79,30 @@ define [
       max = 100
       min = -100
 
-      values = []
-      sum = 0
-
       if m.get('display') == 'rate'
         data = m.get('rates')
       else
         data = m.get('values')
 
-      _.times data.length, (i) ->
-        val = data[i].value
-        target = m.getCompareAndVal(m.get('target'))
+      dataSeries = @splitData(data)
+      target = m.get('targetVal')
 
-        if m.get('display') != 'rate'
-          variance = Math.abs(m.get('targetVal') - val)
-          variance = Math.round((variance / m.get('targetVal')) * 100)
-        else
-          variance = Math.round((val / m.get('targetVal')) * 100)
+      dataSeries = _.map(dataSeries, (series, i)->
+        _.map(series, (val)->
+          if i == 0
+            variance = Math.abs(target - val[1])
+          else
+            variance =  Math.abs(target - val[1]) * -1
 
-        if m.compareVal(target, val)
-          if target[0][0] == '<'
-            variance = 100 - variance
-        else
-          if target[0][0] == '>'
-            variance = 100 - variance
+          if variance > max
+            max = variance
 
-          variance = variance * -1
+          if variance < min
+            min = variance
 
-        x = m.get('values')[i].date.getTime()
-        values.push([x, variance])
-
-        if variance > max
-          max = variance
-
-        if variance < min
-          min = variance
-
+          return [val[0], variance]
+        )
+      )
 
       aMin = Math.abs(min)
 
@@ -135,7 +113,11 @@ define [
 
       container = $('#rate-chart')[0]
       graphOpts =
-        title: "% Variance from Target"
+        title: "Variance"
+        colors: ["green", "red", "orange"]
+        bars:
+          show: true
+          barWidth: 1000 * 43000
         xaxis:
           mode: 'time'
           labelsAngle: 45
@@ -147,7 +129,7 @@ define [
         mouse:
           track: true
 
-      graph = Flotr.draw(container, [values], graphOpts)
+      graph = Flotr.draw(container, dataSeries, graphOpts)
 
     render: ->
       @$el.attr('id', @id)
@@ -165,6 +147,8 @@ define [
 
       @$el.on 'shown', =>
         @valueChart()
-        @varianceChart()
+
+        if @model.get('target')
+          @varianceChart()
 
       @$el.modal()
