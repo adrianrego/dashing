@@ -114,10 +114,10 @@ define [
 
       $.getJSON url, options.success if options.success
 
-    gValue: ->
+    gValue: (from, gUntil)->
       @graphite
-        from:'-30d',
-        until:'-1d',
+        from: from,
+        until: gUntil,
         success: (data) =>
           values = []
           $(data[0].datapoints).each (i, d) ->

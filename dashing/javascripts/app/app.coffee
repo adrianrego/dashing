@@ -35,6 +35,14 @@ define [
       renderMetrics(@)
 
     modelsNotLoaded = 0
+    
+    date = new Date()
+
+    if date.getUTCDate() > date.getDate()
+      gUntil = '-2d'
+    else
+      gUntil = '-1d'
+
     $.getJSON 'metrics.json', (data) ->
       modelsNotLoaded = data.metrics.length
       $.each data.metrics, (i, m) ->
@@ -42,7 +50,7 @@ define [
           m.host = data.graphite
 
         model = new Metric(m)
-        $.when(model.gValue()).done (md) ->
+        $.when(model.gValue('-30d', gUntil)).done (md) ->
           metrics.add model
           modelsNotLoaded = modelsNotLoaded - 1
 
