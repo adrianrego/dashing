@@ -116,7 +116,7 @@ define [
 
       container = $('#rate-chart')[0]
       graphOpts =
-        title: "Variance"
+        title: "Target Delta"
         colors: ["green", "red", "orange"]
         bars:
           show: true
