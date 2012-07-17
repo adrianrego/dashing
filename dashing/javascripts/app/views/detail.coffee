@@ -68,6 +68,9 @@ define [
           noTicks: 10
         mouse:
           track: true
+          trackFormatter: (o)->
+            date = new Date(parseInt(o.x))
+            return date.getMonth() + 1 + "/" + date.getDate() + "/" + date.getFullYear() + ", " + o.y
         markers:
           show: true
 
@@ -128,6 +131,9 @@ define [
           max: max
         mouse:
           track: true
+          trackFormatter: (o)->
+            date = new Date(parseInt(o.x))
+            return date.getMonth() + 1 + "/" + date.getDate() + "/" + date.getFullYear() + ", " + o.y
 
       graph = Flotr.draw(container, dataSeries, graphOpts)
 
