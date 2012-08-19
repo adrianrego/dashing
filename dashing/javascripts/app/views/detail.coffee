@@ -11,8 +11,26 @@ define [
     className: 'modal hide'
     template: tmpl
 
+    events:
+      "click .export":    "export"
+
     initialize: ->
       @id = @model.cid
+
+    export: ->
+      date = new Date()
+
+      if date.getUTCDate() > date.getDate()
+        gUntil = '-2d'
+      else
+        gUntil = '-1d'
+
+      gURL = @model.graphite_url('csv')
+      gURL += '&from=-30d&until=' + gUntil
+
+      $('#gURL').val(gURL)
+      $('#expName').val(@model.get('name'))
+      $('#exportForm').submit()
 
     splitData: (data)->
       pass = []

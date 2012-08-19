@@ -99,10 +99,17 @@ define [
 
       return [comp, parseInt(val)]
 
-    graphite_url: ->
+    graphite_url: (format)->
       url = 'http://' + @get('host')
       url += '/render?target=' + @get('path')
-      url += '&format=json&jsonp=?'
+
+      if format == undefined
+        format = 'json'
+
+      if format == 'json'
+        url += '&format=json&jsonp=?'
+      else
+        url += '&format=' + format
 
     graphite: (options) ->
       url = @graphite_url()
