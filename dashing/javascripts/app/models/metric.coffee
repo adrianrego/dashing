@@ -127,20 +127,22 @@ define [
         until: gUntil,
         success: (data) =>
           values = []
-          $(data[0].datapoints).each (i, d) ->
-            date = new Date(0)
-            offset = date.getTimezoneOffset() * 60
-            date.setTime((d[1] + offset )*1000)
+          
+          if data.length > 0 and data[0].datapoints
+            $(data[0].datapoints).each (i, d) ->
+              date = new Date(0)
+              offset = date.getTimezoneOffset() * 60
+              date.setTime((d[1] + offset )*1000)
 
-            if d[0] == null
-              val = 0
-            else
-              val = d[0]
+              if d[0] == null
+                val = 0
+              else
+                val = d[0]
 
-            tmpVal = val + ""
-            if tmpVal.indexOf('.') > 0
-              val = parseFloat(val.toFixed(2))
+              tmpVal = val + ""
+              if tmpVal.indexOf('.') > 0
+                val = parseFloat(val.toFixed(2))
 
-            values.push({date: date, seconds: d[1], value: val})
+              values.push({date: date, seconds: d[1], value: val})
 
           @set 'values', values
