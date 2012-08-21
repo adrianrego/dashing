@@ -17,25 +17,31 @@ define [
         data = @get('rates')
       else
         data = @get('values')
+        
+      @set 'value', 0
+      @set 'mean', 0
+      @set 'variance', 0
+      @set 'stddev', 0
 
-      @set 'value', _.last(data).value
-      @updateStatus()
+      if data.length > 0
+        @set 'value', _.last(data).value
+        @updateStatus()
 
-      sum = _.reduce(data, ((memo, val) ->
-        memo + val.value), 0)
+        sum = _.reduce(data, ((memo, val) ->
+          memo + val.value), 0)
 
-      @set('mean',  Math.round(sum / data.length))
+        @set('mean',  Math.round(sum / data.length))
 
-      sq_diff = (val) ->
-        diff = val.value - @get('mean')
-        return diff * diff
+        sq_diff = (val) ->
+          diff = val.value - @get('mean')
+          return diff * diff
 
-      diffs = _.map(data, sq_diff, @)
-      dsum = _.reduce(diffs, ((memo, num) ->
-        memo + num), 0)
+        diffs = _.map(data, sq_diff, @)
+        dsum = _.reduce(diffs, ((memo, num) ->
+          memo + num), 0)
 
-      @set('variance',  dsum / diffs.length)
-      @set('stddev', Math.round(Math.sqrt(@get('variance'))))
+        @set('variance',  dsum / diffs.length)
+        @set('stddev', Math.round(Math.sqrt(@get('variance'))))
 
     relatedMetrics: ->
       if @get('display') == 'rate'
