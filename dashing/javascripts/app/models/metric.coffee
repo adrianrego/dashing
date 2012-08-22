@@ -30,7 +30,7 @@ define [
         sum = _.reduce(data, ((memo, val) ->
           memo + val.value), 0)
 
-        @set('mean',  Math.round(sum / data.length))
+        @set('mean',  Math.round((sum / data.length) * 100)/100)
 
         sq_diff = (val) ->
           diff = val.value - @get('mean')
@@ -41,7 +41,7 @@ define [
           memo + num), 0)
 
         @set('variance',  dsum / diffs.length)
-        @set('stddev', Math.round(Math.sqrt(@get('variance'))))
+        @set('stddev', Math.round((Math.sqrt(@get('variance')) * 100)/100))
 
     relatedMetrics: ->
       if @get('display') == 'rate'
@@ -52,7 +52,7 @@ define [
 
         _.times(volume.length, (i) ->
           if volume[i].seconds == totals[i].seconds and totals[i].value > 0
-            rate = Math.round((volume[i].value / totals[i].value) * 100)
+            rate = Math.round(((volume[i].value / totals[i].value) * 100) / 100)
           else
             rate = 0
           rates.push({value: rate, date: volume[i].date, seconds: volume[i].seconds})
