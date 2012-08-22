@@ -18,6 +18,7 @@ define [
       else
         data = @get('values')
         
+      console.log(data)
       @set 'value', 0
       @set 'mean', 0
       @set 'variance', 0
@@ -30,7 +31,7 @@ define [
         sum = _.reduce(data, ((memo, val) ->
           memo + val.value), 0)
 
-        @set('mean',  Math.round((sum / data.length) * 100)/100)
+        @set('mean', (sum / data.length))
 
         sq_diff = (val) ->
           diff = val.value - @get('mean')
@@ -41,7 +42,7 @@ define [
           memo + num), 0)
 
         @set('variance',  dsum / diffs.length)
-        @set('stddev', Math.round((Math.sqrt(@get('variance')) * 100)/100))
+        @set('stddev', Math.sqrt(@get('variance')))
 
     relatedMetrics: ->
       if @get('display') == 'rate'
@@ -52,7 +53,7 @@ define [
 
         _.times(volume.length, (i) ->
           if volume[i].seconds == totals[i].seconds and totals[i].value > 0
-            rate = Math.round(((volume[i].value / totals[i].value) * 100) / 100)
+            rate = (volume[i].value / totals[i].value) * 100
           else
             rate = 0
           rates.push({value: rate, date: volume[i].date, seconds: volume[i].seconds})
@@ -147,7 +148,7 @@ define [
 
               tmpVal = val + ""
               if tmpVal.indexOf('.') > 0
-                val = parseFloat(val.toFixed(2))
+                val = parseFloat(val)
 
               values.push({date: date, seconds: d[1], value: val})
 

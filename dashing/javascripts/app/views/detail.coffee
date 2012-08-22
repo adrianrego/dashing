@@ -71,7 +71,6 @@ define [
         display = "Volume"
 
       dataSeries = @splitData(data)
-
       container = $('#val-chart')[0]
       graphOpts =
         title: display
@@ -157,6 +156,7 @@ define [
 
     render: ->
       @$el.attr('id', @id)
+      
       @$el.html(@template(@model.attributes))
       $('body').append(@el)
 

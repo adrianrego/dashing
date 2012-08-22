@@ -19,11 +19,21 @@ define [
 
     render: ->
       data = @model.attributes
-
+      
       if data.format == '%'
-        data.formatted_value = data.value + '%'
+        data.formatted_value = @formatNumber(data.value, true)
+        data.formatted_mean = @formatNumber(data.mean, true)
+        data.formatted_stddev = @formatNumber(data.stddev, true)
+        
+        if data.targetVal
+          data.formatted_target = @formatNumber(data.targetVal / 100, true)
       else
-        data.formatted_value = @formatNumber(data.value)
+        data.formatted_value = @formatNumber(data.value, false, 2)
+        data.formatted_mean = @formatNumber(data.mean, false)
+        data.formatted_stddev = @formatNumber(data.stddev, false)
+        
+        if data.targetVal
+          data.formatted_target = @formatNumber(data.targetVal, false)
 
       if data.status > 0
         data.status_class = 'btn-success'
@@ -38,12 +48,20 @@ define [
       @$el.html(@template(@model.attributes))
       @row.$el.append(@el)
 
-    formatNumber: (num) ->
+    formatNumber: (num, percent, digits) ->
+      if not digits
+        digits = 1
+        
       parts = num.toString().split(".")
       parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-
-      return parts.join(".")
-
+      
+      val = parts.join(".")
+      val = Math.round(val * 10 * digits) / (10 * digits)
+      
+      if percent
+        val = val.toFixed(digits) + '%' 
+        
+      return val
 
     details: ->
       detail = new MetricDetailView(model: @model)
