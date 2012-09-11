@@ -17,8 +17,7 @@ define [
         data = @get('rates')
       else
         data = @get('values')
-        
-      console.log(data)
+
       @set 'value', 0
       @set 'mean', 0
       @set 'variance', 0

@@ -52,15 +52,15 @@ define [
       if not digits
         digits = 1
         
-      parts = num.toString().split(".")
+      val = Math.round(num * 10 * digits) / (10 * digits)
+      parts = val.toString().split(".")
+
       parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-      
       val = parts.join(".")
-      val = Math.round(val * 10 * digits) / (10 * digits)
       
       if percent
-        val = val.toFixed(digits) + '%' 
-        
+        val = val + '%'
+
       return val
 
     details: ->
